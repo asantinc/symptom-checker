@@ -6,9 +6,9 @@ import math
 
 FREQUENCIES = {
     "Very rare (<4-1%)": 4,
+    "Occasional (29-5%)": 29,
     "Very frequent (99-80%)": 99,
     "Frequent (79-30%)": 79,
-    "Occasional (29-5%)": 29,
     "Excluded (0%)": 0,  # Special as it should not be considered if symptom is the case
     "Obligate (100%)": 100,  # Special as it should not be considered if symptom is not the case
 }
@@ -47,7 +47,6 @@ def calculate_symptom_idf(disease_id_to_symptom_id_and_frequency_tuple):
     for symptom, freq in symptom_idf_dict.items():
         symptom_idf_dict[symptom] = math.log(total_diseases / float(freq))
     return symptom_idf_dict
-
 
 
 

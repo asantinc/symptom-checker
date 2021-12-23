@@ -26,7 +26,7 @@ def parse_file(file_name: Path) -> Dict:
 def _generate_mappings(source_data_dict: Dict):
     _disease_orpha_code_to_name = {}
     _symptom_id_to_name = {}
-    _disease_id_to_symptom_id_and_frequency_tuple = defaultdict(set)
+    _disease_id_to_symptom_id_and_frequency_tuple = defaultdict(dict)
 
     all_diseases = source_data_dict['JDBOR']['HPODisorderSetStatusList']['HPODisorderSetStatus']
 
@@ -45,7 +45,7 @@ def _generate_mappings(source_data_dict: Dict):
             symptom_name = symptom['HPO']['HPOTerm']
             symptom_frequency = symptom['HPOFrequency']['Name']['#text']
             _symptom_id_to_name[symptom_id] = symptom_name
-            _disease_id_to_symptom_id_and_frequency_tuple[disease_code].add((symptom_id, symptom_frequency))
+            _disease_id_to_symptom_id_and_frequency_tuple[disease_code][symptom_id] = symptom_frequency
     return _disease_orpha_code_to_name, _symptom_id_to_name, _disease_id_to_symptom_id_and_frequency_tuple
 
 
@@ -55,8 +55,6 @@ def _output_mappings_to_file(disease_orpha_code_to_name, symptom_id_to_name, dis
     with open(PROCESSED_DATA_PATH / 'disease_orpha_code_to_name.json', 'w') as f:
         json.dump(disease_orpha_code_to_name, f)
 
-    for disease, symptom_frequency_tuple in disease_id_to_symptom_id_and_frequency_tuple.items():
-        disease_id_to_symptom_id_and_frequency_tuple[disease] = list(symptom_frequency_tuple)
     with open(PROCESSED_DATA_PATH / 'disease_id_to_symptom_id_and_frequency_tuple.json', 'w') as f:
         json.dump(disease_id_to_symptom_id_and_frequency_tuple, f)
 
@@ -76,9 +74,9 @@ def _load_disease_to_symptom_mappings() -> Tuple[Dict, Dict, Dict]:
 
 def _find_unique_frequencies(disease_id_to_symptom_id_and_frequency_tuple: Dict) -> Set[str]:
     return {
-        s[1]
+        frequency
         for disease, symptoms in disease_id_to_symptom_id_and_frequency_tuple.items()
-        for s in symptoms
+        for frequency in symptoms.values()
     }
 
 
